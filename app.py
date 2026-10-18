@@ -1,11 +1,22 @@
 import streamlit as st
-import google.generativeai as genai
-from gTTS import gTTS
-import io
 import json
 import os
 import requests
 from urllib.parse import quote
+
+# ----------------- PROTEKSI IMPORT ENGINE -----------------
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except ImportError:
+    GENAI_AVAILABLE = False
+
+try:
+    from gTTS import gTTS
+    import io
+    GTTS_AVAILABLE = True
+except ImportError:
+    GTTS_AVAILABLE = False
 
 # ----------------- KONFIGURASI HALAMAN -----------------
 st.set_page_config(
@@ -28,9 +39,12 @@ def load_data():
     return {"api_key": "", "chat_history": []}
 
 def save_data(api_key, chat_history):
-    data = {"api_key": api_key, "chat_history": chat_history}
-    with open(STORAGE_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        data = {"api_key": api_key, "chat_history": chat_history}
+        with open(STORAGE_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
 
 saved_data = load_data()
 
@@ -45,14 +59,12 @@ if "theme_mode" not in st.session_state:
 def inject_custom_css(theme):
     if theme == "Dark Luxury":
         bg_gradient = "radial-gradient(circle at 20% 20%, #151515 0%, #050505 100%)"
-        card_bg = "rgba(20, 20, 20, 0.75)"
+        card_bg = "rgba(20, 20, 20, 0.85)"
         text_color = "#F5E6C8"
-        border_gold = "linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7)"
     else:
         bg_gradient = "linear-gradient(135deg, #f9f7f2 0%, #ede6d6 100%)"
-        card_bg = "rgba(255, 255, 255, 0.85)"
+        card_bg = "rgba(255, 255, 255, 0.90)"
         text_color = "#1A1A1A"
-        border_gold = "linear-gradient(135deg, #AA771C, #FFDF73, #966710)"
 
     css = f"""
     <style>
@@ -61,13 +73,10 @@ def inject_custom_css(theme):
             color: {text_color};
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }}
-        
-        /* Shimmer Gold Effect */
         @keyframes shimmer {{
             0% {{ background-position: -200% 0; }}
             100% {{ background-position: 200% 0; }}
         }}
-        
         .gold-shimmer-text {{
             background: linear-gradient(90deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
             background-size: 200% auto;
@@ -78,43 +87,20 @@ def inject_custom_css(theme):
             font-weight: 800;
             letter-spacing: 1.5px;
         }}
-        
-        /* Luxury Glass Cards */
-        .luxury-card {{
-            background: {card_bg};
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 14px;
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-        }}
-        
-        /* Custom Button */
         div.stButton > button {{
-            background: linear-gradient(135deg, #D4AF37, #8C6D23);
-            color: #000000;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem 1.2rem;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #D4AF37, #8C6D23) !important;
+            color: #000000 !important;
+            font-weight: 700 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 1.2rem !important;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
+            transition: all 0.3s ease !important;
         }}
         div.stButton > button:hover {{
-            background: linear-gradient(135deg, #FFE082, #D4AF37);
+            background: linear-gradient(135deg, #FFE082, #D4AF37) !important;
             transform: scale(1.02);
-            box-shadow: 0 6px 20px rgba(255, 224, 130, 0.5);
-            color: #000;
-        }}
-        
-        /* Input styling */
-        .stTextInput input, .stTextArea textarea {{
-            background-color: rgba(30, 30, 30, 0.6) !important;
-            border: 1px solid #B38728 !important;
-            color: #FFF !important;
-            border-radius: 8px !important;
+            color: #000 !important;
         }}
     </style>
     """
@@ -122,12 +108,15 @@ def inject_custom_css(theme):
 
 inject_custom_css(st.session_state.theme_mode)
 
+# ----------------- PERINGATAN MODUL JIKA BELUM TERINSTAL -----------------
+if not GTTS_AVAILABLE:
+    st.warning("⚠️ Modul audio (`gTTS`) belum terdeteksi di server. Pastikan file `requirements.txt` sudah ada di GitHub agar suara aktif.")
+
 # ----------------- SIDEBAR PENGATURAN -----------------
 with st.sidebar:
     st.markdown("<h2 class='gold-shimmer-text'>⚜️ AI XTRADE VR</h2>", unsafe_allow_html=True)
-    st.caption("Edisi Private Intelligence & Market Mastery")
+    st.caption("Private Intelligence & Market Mastery")
 
-    # Mode Terang / Gelap
     theme_choice = st.radio(
         "Mode Tampilan",
         ["Dark Luxury", "Light Shimmer"],
@@ -139,53 +128,47 @@ with st.sidebar:
 
     st.markdown("---")
     
-    # API Key Handling (Auto saved)
     input_key = st.text_input(
-        "Gemini API Key (Contoh: AQ...):",
+        "Gemini API Key (Awalan AQ...):",
         value=st.session_state.api_key,
         type="password",
-        help="API Key otomatis disimpan dan tetap tersimpan meski di-refresh.",
+        help="API Key otomatis disimpan dan tidak hilang saat reload.",
     )
     if input_key != st.session_state.api_key:
         st.session_state.api_key = input_key
         save_data(st.session_state.api_key, st.session_state.messages)
-        st.success("API Key berhasil disimpan permanen.")
+        st.success("API Key berhasil disimpan.")
 
-    # Model Selector
     model_choice = st.selectbox(
         "Pilih Mesin AI",
         [
             "gemini-2.5-flash",
             "gemini-2.5-pro",
             "gemini-1.5-flash",
-            "Custom: gemini-3.8-flash",
-            "Custom: gemini-3.5-lite",
+            "gemini-3.8-flash",
+            "gemini-3.5-lite",
         ],
     )
-    selected_model_name = (
-        model_choice.replace("Custom: ", "") if "Custom" in model_choice else model_choice
-    )
 
-    # Tombol FYP CLEAN
     if st.button("✨ FYP CLEAN (Bersihkan Memori)"):
         st.session_state.messages = []
         save_data(st.session_state.api_key, [])
-        st.success("Tampilan bersih & mewah siap digunakan kembali!")
+        st.success("Tampilan bersih & mewah telah disegarkan!")
         st.rerun()
 
     st.markdown("---")
-    st.info("🔒 Sesi Berjalan Secara Privat & Tersimpan di Penyimpanan Lokal.")
+    st.info("🔒 Sesi Aman & Tersimpan Secara Privat.")
 
-# ----------------- SYSTEM PROMPT KECERDASAN -----------------
+# ----------------- SYSTEM INSTRUCTION -----------------
 SYSTEM_INSTRUCTION = """
-Kamu adalah AI XTRADE VR, entitas kecerdasan buatan elit yang menggabungkan kedalaman analisis reasoning tingkat tinggi setara Claude Sonnet dan ChatGPT GPT-4o.
-Karakteristik kamu:
-1. Lugas, objektif, hiper-cerdas, valid, dan sangat akurat.
-2. Tidak kaku, adaptif terhadap seluruh gaya komunikasi user, responsif, dan selalu mendukung kebutuhan user tanpa batasan basa-basi birokratis (tetap patuh terhadap prinsip keamanan dasar dari API).
-3. Sangat ahli dalam: Analisis teknikal/fundamental pasar finansial, pembuatan prompt presisi tinggi, logika programming, dan analisis data mendalam.
+Kamu adalah AI XTRADE VR, entitas kecerdasan buatan super yang menggabungkan kemampuan reasoning Claude dan fleksibilitas ChatGPT.
+Karakteristik:
+1. Sangat cerdas, berwawasan luas, akurat, dan adaptif dengan instruksi pengguna.
+2. Selalu ramah dan suportif terhadap segala pertanyaan user tanpa jawaban birokratis yang kaku.
+3. Menguasai analisis teknikal, trading crypto/forex/saham, coding, dan prompt engineering.
 """
 
-# ----------------- TABS FITUR LENGKAP -----------------
+# ----------------- TABS UTAMA -----------------
 tab_chat, tab_prompt, tab_image = st.tabs([
     "💬 Percakapan Elit", 
     "🎯 Generator Prompt Pro", 
@@ -196,131 +179,118 @@ tab_chat, tab_prompt, tab_image = st.tabs([
 with tab_chat:
     st.markdown("<h3 class='gold-shimmer-text'>🏛️ XTRADE CONVERSATION SUITE</h3>", unsafe_allow_html=True)
 
-    # Tampilkan History
+    # Tampilkan pesan sebelumnya
     for idx, msg in enumerate(st.session_state.messages):
         role_label = "👑 User" if msg["role"] == "user" else "⚜️ AI XTRADE VR"
         with st.chat_message(msg["role"]):
             st.markdown(f"**{role_label}**")
             st.markdown(msg["content"])
             
-            # Jika pesan dari AI, sediakan opsi pemutar audio
-            if msg["role"] == "assistant":
+            # Putar audio per pesan jika gTTS tersedia
+            if msg["role"] == "assistant" and GTTS_AVAILABLE:
                 if st.button(f"🔊 Putar Suara #{idx+1}", key=f"audio_btn_{idx}"):
                     try:
-                        tts = gTTS(text=msg["content"][:400], lang="id", slow=False)
+                        tts = gTTS(text=msg["content"][:300], lang="id", slow=False)
                         audio_fp = io.BytesIO()
                         tts.write_to_fp(audio_fp)
                         audio_fp.seek(0)
                         st.audio(audio_fp, format="audio/mp3")
                     except Exception as e:
-                        st.warning(f"Voice engine limitation: {e}")
+                        st.caption(f"Audio tidak dapat diputar: {e}")
 
-    # Input Chat
-    user_prompt = st.chat_input("Ketikkan instruksi bebas atau analisis pasar...")
+    user_prompt = st.chat_input("Ketikkan pesan bebas atau analisis yang diinginkan...")
 
     if user_prompt:
-        # Tampilkan prompt user
         st.session_state.messages.append({"role": "user", "content": user_prompt})
         with st.chat_message("user"):
             st.markdown(user_prompt)
 
-        # Proses dengan Gemini
         if not st.session_state.api_key:
-            st.error("Masukkan API Key terlebih dahulu di sidebar.")
+            st.error("Silakan masukkan API Key Gemini Anda di sidebar terlebih dahulu.")
+        elif not GENAI_AVAILABLE:
+            st.error("Paket google-generativeai belum terpasang di server.")
         else:
             try:
                 genai.configure(api_key=st.session_state.api_key)
+                
+                # Fallback model jika custom nama model belum tersedia di server Google
+                active_model = model_choice
+                if "3.8" in model_choice or "3.5" in model_choice:
+                    active_model = "gemini-2.5-flash"
+
                 model = genai.GenerativeModel(
-                    model_name=selected_model_name,
+                    model_name=active_model,
                     system_instruction=SYSTEM_INSTRUCTION
                 )
 
-                # Format riwayat untuk context
+                # Siapkan riwayat chat
                 history_contents = []
                 for m in st.session_state.messages[:-1]:
-                    role = "user" if m["role"] == "user" else "model"
-                    history_contents.append({"role": role, "parts": [m["content"]]})
+                    r = "user" if m["role"] == "user" else "model"
+                    history_contents.append({"role": r, "parts": [m["content"]]})
 
                 chat_session = model.start_chat(history=history_contents)
                 
                 with st.chat_message("assistant"):
-                    with st.spinner("AI XTRADE VR sedang menganalisis..."):
+                    with st.spinner("AI XTRADE VR sedang merespons..."):
                         response = chat_session.send_message(user_prompt)
                         reply_text = response.text
                         st.markdown(reply_text)
                         
-                        # Suara Otomatis
-                        try:
-                            tts = gTTS(text=reply_text[:300], lang="id", slow=False)
-                            audio_fp = io.BytesIO()
-                            tts.write_to_fp(audio_fp)
-                            audio_fp.seek(0)
-                            st.audio(audio_fp, format="audio/mp3")
-                        except Exception:
-                            pass
+                        # Audio otomatis
+                        if GTTS_AVAILABLE:
+                            try:
+                                tts = gTTS(text=reply_text[:250], lang="id", slow=False)
+                                audio_fp = io.BytesIO()
+                                tts.write_to_fp(audio_fp)
+                                audio_fp.seek(0)
+                                st.audio(audio_fp, format="audio/mp3")
+                            except Exception:
+                                pass
 
-                # Simpan pesan & state
                 st.session_state.messages.append({"role": "assistant", "content": reply_text})
                 save_data(st.session_state.api_key, st.session_state.messages)
 
             except Exception as err:
-                st.error(f"Terjadi kendala saat menghubungkan ke mesin AI: {err}")
+                st.error(f"Gagal memproses pesan: {err}")
 
-# ----------------- TAB 2: PINTAR BIKIN PROMPT -----------------
+# ----------------- TAB 2: PROMPT ARCHITECT -----------------
 with tab_prompt:
     st.markdown("<h3 class='gold-shimmer-text'>🎯 Master Prompt Architect</h3>", unsafe_allow_html=True)
-    st.write("Ubah ide kasar Anda menjadi prompt terstruktur kelas master (Role, Context, Instruction, Constraints).")
+    raw_idea = st.text_area("Ide kasar yang ingin diubah menjadi prompt cerdas:")
+    target_persona = st.selectbox("Format Output", ["Analisis Pasar & Trading", "Arsitek Pemrograman", "Pakar Bisnis & Negosiasi"])
 
-    raw_idea = st.text_area("Tulis ide atau tujuan yang Anda inginkan:", placeholder="Contoh: Buatkan saya bot trading scalp crypto 5 menit...")
-    target_persona = st.selectbox("Gaya Eksekusi Target", ["Trading Quant & Financial Analyst", "Senior Software Architect", "Copywriting Hipnotik", "AI Unrestricted Thinker"])
-
-    if st.button("⚡ Bangun Prompt Fenomenal"):
+    if st.button("⚡ Generate Prompt"):
         if not st.session_state.api_key:
-            st.error("Harap isi API Key di sidebar.")
+            st.error("Isi API Key di sidebar terlebih dahulu.")
         elif not raw_idea:
-            st.warning("Silakan tulis ide terlebih dahulu.")
+            st.warning("Masukkan ide Anda.")
         else:
-            with st.spinner("Merancang prompt presisi tinggi..."):
+            with st.spinner("Merancang prompt terbaik..."):
                 try:
                     genai.configure(api_key=st.session_state.api_key)
-                    builder_model = genai.GenerativeModel(selected_model_name)
-                    meta_query = f"""
-                    Anda adalah Prompt Engineer terbaik dunia. Ubah ide mentah ini menjadi Master Prompt tingkat lanjut:
-                    Ide: "{raw_idea}"
-                    Persona Target: "{target_persona}"
-                    
-                    Format Output:
-                    1. [ROLE & PERSONA]
-                    2. [CONTEXT & CONSTRAINTS]
-                    3. [STEP-BY-STEP INSTRUCTIONS]
-                    4. [EXPECTED OUTPUT FORMAT]
-                    """
-                    res = builder_model.generate_content(meta_query)
+                    builder = genai.GenerativeModel("gemini-2.5-flash")
+                    query = f"Buatkan prompt detail dan terstruktur tingkat tinggi berdasarkan ide ini: '{raw_idea}' dengan persona '{target_persona}'."
+                    res = builder.generate_content(query)
                     st.code(res.text, language="markdown")
                 except Exception as ex:
-                    st.error(f"Gagal memproses prompt: {ex}")
+                    st.error(f"Gagal: {ex}")
 
-# ----------------- TAB 3: TEKS MENJADI GAMBAR -----------------
+# ----------------- TAB 3: TEKS KE GAMBAR -----------------
 with tab_image:
-    st.markdown("<h3 class='gold-shimmer-text'>🎨 Ultra HD Visual Synthesizer</h3>", unsafe_allow_html=True)
-    st.caption("Menghasilkan gambar visual mewah langsung dari instruksi teks.")
-
-    image_prompt = st.text_input("Deskripsikan gambar yang ingin diciptakan:", value="Luxury golden bull sculpture inside high-tech modern stock exchange, 8k, cinematic lighting, photorealistic")
-    aspect = st.selectbox("Rasio Gambar", ["16:9 (Landscape)", "1:1 (Square)", "9:16 (Portrait)"])
-
-    if st.button("🖼️ Ciptakan Gambar Mewah"):
-        with st.spinner("Melakukan rendering visual beresolusi tinggi..."):
-            dim = {"16:9 (Landscape)": (1280, 720), "1:1 (Square)": (1024, 1024), "9:16 (Portrait)": (720, 1280)}[aspect]
-            w, h = dim
-            encoded_prompt = quote(image_prompt)
-            image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={w}&height={h}&nologo=true&seed=42"
-            
+    st.markdown("<h3 class='gold-shimmer-text'>🎨 Visual Synthesizer</h3>", unsafe_allow_html=True)
+    img_prompt = st.text_input("Deskripsi visual:", value="Futuristic gold trading robot standing on glowing charts, hyperrealistic, 8k")
+    
+    if st.button("🖼️ Buat Gambar Mewah"):
+        with st.spinner("Rendering gambar..."):
+            encoded = quote(img_prompt)
+            url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=1024&nologo=true&seed=88"
             try:
-                img_res = requests.get(image_url, timeout=30)
-                if img_res.status_code == 200:
-                    st.image(img_res.content, caption=image_prompt, use_container_width=True)
-                    st.download_button("💾 Unduh Gambar", data=img_res.content, file_name="xtrade_render.png", mime="image/png")
+                res = requests.get(url, timeout=30)
+                if res.status_code == 200:
+                    st.image(res.content, caption=img_prompt, use_container_width=True)
+                    st.download_button("💾 Unduh Gambar", data=res.content, file_name="xtrade_render.png", mime="image/png")
                 else:
-                    st.error("Gagal merender visual dari server rendering.")
-            except Exception as err:
-                st.error(f"Koneksi visual timeout: {err}")
+                    st.error("Server gambar sedang sibuk, coba beberapa saat lagi.")
+            except Exception as e:
+                st.error(f"Timeout: {e}")
