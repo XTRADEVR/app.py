@@ -57,7 +57,7 @@ if prompt:
         with st.chat_message("assistant"):
             with st.spinner("⚡ XTRADE AI sedang menganalisis..."):
                 response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-flash-latest",
                     contents=f"Kamu adalah XTRADE AI, asisten trading cerdas, analitis, dan mewah. Jawab dengan gaya profesional tapi keren. Pertanyaan: {prompt}"
                 )
                 answer = response.text
