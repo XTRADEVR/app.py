@@ -216,7 +216,7 @@ with tab_chat:
                 # Fallback model jika custom nama model belum tersedia di server Google
                 active_model = model_choice
                 if "3.8" in model_choice or "3.5" in model_choice:
-                    active_model = "gemini-3.8-falsh"
+                    active_model = "gemini-3.8-flash"
 
                 model = genai.GenerativeModel(
                     model_name=active_model,
