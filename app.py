@@ -109,7 +109,7 @@ with st.sidebar:
         "Gemini API Key",
         value=secret_key,
         type="password",
-        placeholder="Paste AIzaSy... disini",
+        placeholder="Paste AQ.Ab8RN6I... disini",
         help="Dapatkan API Key gratis di Google AI Studio (aistudio.google.com)"
     )
 
@@ -173,7 +173,7 @@ if prompt:
                 # Inisialisasi client Gemini
                 genai.configure(api_key=api_key_input)
                 model = genai.GenerativeModel(
-                    model_name="gemini-1.5-flash",
+                    model_name="gemini-2.0-flash",
                     system_instruction="Anda adalah XTRADE AI, asisten analitis cerdas berkecepatan tinggi dengan gaya ringkas, tajam, profesional, dan akurat."
                 )
                 
