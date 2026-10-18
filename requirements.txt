@@ -1,5 +1,3 @@
 streamlit
-google-generativeai
+google-genai
 gTTS
-requests
-pillow
