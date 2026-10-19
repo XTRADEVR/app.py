@@ -16,8 +16,8 @@ DB_PATH = APP_DIR / "xtrade_king.db"
 KEY_PATH = APP_DIR / ".vault.key"
 
 st.set_page_config(
-    page_title="XTRADE KING â€” AI Studio",
-    page_icon="ðŸ‘‘",
+    page_title="XTRADE KING — AI Studio",
+    page_icon="👑",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -175,15 +175,21 @@ def delete_chat(cid):
 PROVIDERS = {
     "OpenAI": {
         "models": ["gpt-4.1", "gpt-4.1-mini", "gpt-4o", "gpt-4o-mini"],
-        "key_hint": "sk-â€¦",
+        "key_hint": "sk-…",
     },
     "Anthropic Claude": {
         "models": ["claude-sonnet-4-20250514", "claude-3-7-sonnet-latest", "claude-3-5-haiku-latest"],
-        "key_hint": "sk-ant-â€¦",
+        "key_hint": "sk-ant-…",
     },
     "Google Gemini / AI Studio": {
-        "models": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
-        "key_hint": "AIzaâ€¦",
+        # Keep existing API model IDs and add the model names shown in the user's AI Studio screenshot.
+        # Availability/IDs can vary by account and API release; unavailable IDs will return a provider error.
+        "models": [
+            "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash",
+            "gemini-3.8-flash", "gemini-4-argon", "gemini-3.5-flash-lite",
+            "gemini-3.6-flash", "gemini-3.1-flash-lite", "gemini-3-flash-preview"
+        ],
+        "key_hint": "AIza…",
     },
     "OpenAI-compatible API": {
         "models": ["custom-model"],
@@ -250,9 +256,9 @@ def call_ai(provider, api_key, model, messages, system_prompt, temperature, max_
 
 # ---------- Sidebar ----------
 with st.sidebar:
-    st.markdown("## ðŸ‘‘ XTRADE KING")
-    st.caption("AI STUDIO â€¢ MULTI-MODEL")
-    page = st.radio("MENU", ["ðŸ’¬ Chat AI", "ðŸ§° AI Studio", "ðŸ—‚ï¸ Riwayat Chat", "ðŸ” API & Pengaturan", "â„¹ï¸ Tentang"], label_visibility="collapsed")
+    st.markdown("## 👑 XTRADE KING")
+    st.caption("AI STUDIO • MULTI-MODEL")
+    page = st.radio("MENU", ["💬 Chat AI", "🧰 AI Studio", "🗂️ Riwayat Chat", "🔐 API & Pengaturan", "ℹ️ Tentang"], label_visibility="collapsed")
     st.divider()
     provider = st.selectbox("Model provider", list(PROVIDERS.keys()), key="provider")
     model = st.selectbox("Model", PROVIDERS[provider]["models"], key=f"model_{provider}")
@@ -263,18 +269,20 @@ with st.sidebar:
         base_url = st.text_input("Base URL", value=setting_get("base_url",""), placeholder="https://api.example.com/v1")
     c1,c2 = st.columns(2)
     with c1:
-        if st.button("ðŸ’¾ Simpan key", use_container_width=True):
+        if st.button("💾 Simpan key", use_container_width=True):
             save_secret(provider, api_key)
             if base_url:
                 setting_set("base_url", base_url)
             st.success("Key tersimpan terenkripsi di perangkat/server ini.")
     with c2:
-        if st.button("ðŸ§¹ Hapus key", use_container_width=True):
+        if st.button("🧹 Hapus key", use_container_width=True):
             save_secret(provider, "")
             st.rerun()
+    if provider == "Google Gemini / AI Studio":
+        st.caption("Gemini: daftar mencakup model yang terlihat di screenshot dan model API yang sudah ada. Model yang tidak tersedia untuk API key/akun kamu mungkin gagal dipanggil.")
     st.caption("Key disimpan lokal dalam database terenkripsi. Lindungi folder .xtrade_king dan jangan bagikan server.")
     st.divider()
-    if st.button("ï¼‹ Chat baru", use_container_width=True):
+    if st.button("＋ Chat baru", use_container_width=True):
         st.session_state.chat_id = create_chat()
         st.rerun()
 
@@ -288,32 +296,32 @@ current_row = conn.execute("SELECT * FROM chats WHERE id=?", (current_id,)).fetc
 # ---------- Header ----------
 st.markdown("""
 <div class="king-hero">
-  <div class="eyebrow">PRIVATE AI WORKSPACE â€¢ MULTI-MODEL STUDIO</div>
-  <div class="hero-title">ðŸ‘‘ XTRADE KING</div>
+  <div class="eyebrow">PRIVATE AI WORKSPACE • MULTI-MODEL STUDIO</div>
+  <div class="hero-title">👑 XTRADE KING</div>
   <div class="hero-sub">Satu ruang kerja AI untuk menulis, coding, belajar, menganalisis dokumen, brainstorming, dan membandingkan model. Chat tersimpan lokal, tampilan premium gold shimmer.</div>
 </div>
 """, unsafe_allow_html=True)
 st.write("")
 
-if page == "ðŸ’¬ Chat AI":
+if page == "💬 Chat AI":
     col1,col2,col3 = st.columns(3)
     with col1:
-        st.markdown('<div class="feature-card">ðŸ§  <b>Multi-model</b><br><small>OpenAI, Claude, Gemini, dan endpoint kompatibel.</small></div>', unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">🧠 <b>Multi-model</b><br><small>OpenAI, Claude, Gemini, dan endpoint kompatibel.</small></div>', unsafe_allow_html=True)
     with col2:
-        st.markdown('<div class="feature-card">ðŸ—ƒï¸ <b>Chat tersimpan</b><br><small>Riwayat berada di database lokal.</small></div>', unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">🗃️ <b>Chat tersimpan</b><br><small>Riwayat berada di database lokal.</small></div>', unsafe_allow_html=True)
     with col3:
-        st.markdown('<div class="feature-card">âš™ï¸ <b>Kontrol AI</b><br><small>Atur instruksi, kreativitas, dan panjang jawaban.</small></div>', unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">⚙️ <b>Kontrol AI</b><br><small>Atur instruksi, kreativitas, dan panjang jawaban.</small></div>', unsafe_allow_html=True)
     st.write("")
     title_col, action_col = st.columns([4,1])
     with title_col:
         st.subheader(current_row["title"] if current_row else "Chat baru")
     with action_col:
-        if st.button("ðŸ—‘ï¸ Hapus chat", use_container_width=True):
+        if st.button("🗑️ Hapus chat", use_container_width=True):
             delete_chat(current_id)
             st.session_state.chat_id = create_chat()
             st.rerun()
 
-    with st.expander("âš™ï¸ Pengaturan jawaban", expanded=False):
+    with st.expander("⚙️ Pengaturan jawaban", expanded=False):
         system_prompt = st.text_area(
             "Instruksi AI",
             value=st.session_state.get("system_prompt", "Kamu adalah XTRADE KING, asisten AI yang cerdas, jujur, teliti, dan membantu. Jawab dalam Bahasa Indonesia jika pengguna memakai Bahasa Indonesia. Jika tidak yakin, jelaskan keterbatasan dan jangan mengarang fakta."),
@@ -330,16 +338,16 @@ if page == "ðŸ’¬ Chat AI":
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    prompt = st.chat_input("Tanyakan apa saja, minta kode, analisis, ide, atau penjelasanâ€¦")
+    prompt = st.chat_input("Tanyakan apa saja, minta kode, analisis, ide, atau penjelasan…")
     if prompt:
         add_message(current_id, "user", prompt)
         if current_row and current_row["title"] == "Chat baru":
-            rename_chat(current_id, prompt[:48] + ("â€¦" if len(prompt)>48 else ""))
+            rename_chat(current_id, prompt[:48] + ("…" if len(prompt)>48 else ""))
         with st.chat_message("user"):
             st.markdown(prompt)
         history = get_messages(current_id)
         with st.chat_message("assistant"):
-            with st.spinner(f"XTRADE KING sedang berpikir menggunakan {model}â€¦"):
+            with st.spinner(f"XTRADE KING sedang berpikir menggunakan {model}…"):
                 try:
                     answer = call_ai(provider, api_key, model, history, st.session_state.get("system_prompt","Kamu adalah XTRADE KING, asisten AI yang membantu."), temperature, max_tokens, base_url or setting_get("base_url",""))
                     st.markdown(answer)
@@ -348,31 +356,31 @@ if page == "ðŸ’¬ Chat AI":
                     st.error(f"Gagal menghubungi model: {e}")
                     st.caption("Periksa API key, saldo/kuota provider, nama model, koneksi internet, dan Base URL. Pesan pengguna tetap tersimpan.")
 
-elif page == "ðŸ§° AI Studio":
-    st.subheader("ðŸ§° AI Studio")
+elif page == "🧰 AI Studio":
+    st.subheader("🧰 AI Studio")
     st.write("Pilih tool, tulis kebutuhan, lalu kirim hasilnya ke chat aktif untuk diteruskan.")
     tool = st.selectbox("Pilih mode", [
-        "âœï¸ Penulis profesional", "ðŸ’» Coding assistant", "ðŸ“š Tutor belajar",
-        "ðŸ“Š Analisis & strategi", "ðŸŽ¬ Konten kreator", "ðŸ§© Brainstorm ide",
-        "ðŸ“ Ringkas teks/dokumen", "ðŸŒ Penerjemah"
+        "✍️ Penulis profesional", "💻 Coding assistant", "📚 Tutor belajar",
+        "📊 Analisis & strategi", "🎬 Konten kreator", "🧩 Brainstorm ide",
+        "📝 Ringkas teks/dokumen", "🌐 Penerjemah"
     ])
-    task = st.text_area("Teks / instruksi", height=220, placeholder="Tempel teks atau jelaskan hasil yang kamu inginkanâ€¦")
+    task = st.text_area("Teks / instruksi", height=220, placeholder="Tempel teks atau jelaskan hasil yang kamu inginkan…")
     prompts = {
-        "âœï¸ Penulis profesional":"Bertindak sebagai editor profesional. Perbaiki struktur, kejelasan, nada, dan tata bahasa. Berikan hasil akhir yang siap dipakai.",
-        "ðŸ’» Coding assistant":"Bertindak sebagai software engineer senior. Analisis kebutuhan, berikan solusi yang bisa dijalankan, kode lengkap, instruksi pemasangan, dan catatan keamanan.",
-        "ðŸ“š Tutor belajar":"Jadilah tutor sabar. Jelaskan dari dasar, gunakan contoh sederhana, lalu berikan latihan dan jawaban.",
-        "ðŸ“Š Analisis & strategi":"Analisis masalah secara terstruktur. Pisahkan fakta, asumsi, risiko, opsi, dan rekomendasi praktis.",
-        "ðŸŽ¬ Konten kreator":"Buat ide konten menarik dengan hook, isi, caption, CTA, dan variasi format. Hindari klaim hasil yang tidak bisa dijamin.",
-        "ðŸ§© Brainstorm ide":"Hasilkan banyak ide berbeda, kelompokkan berdasarkan dampak dan kesulitan, lalu pilih yang paling realistis.",
-        "ðŸ“ Ringkas teks/dokumen":"Ringkas teks menjadi inti, poin penting, tindakan berikutnya, dan pertanyaan yang belum terjawab.",
-        "ðŸŒ Penerjemah":"Terjemahkan dengan alami dan pertahankan makna, konteks, serta format aslinya."
+        "✍️ Penulis profesional":"Bertindak sebagai editor profesional. Perbaiki struktur, kejelasan, nada, dan tata bahasa. Berikan hasil akhir yang siap dipakai.",
+        "💻 Coding assistant":"Bertindak sebagai software engineer senior. Analisis kebutuhan, berikan solusi yang bisa dijalankan, kode lengkap, instruksi pemasangan, dan catatan keamanan.",
+        "📚 Tutor belajar":"Jadilah tutor sabar. Jelaskan dari dasar, gunakan contoh sederhana, lalu berikan latihan dan jawaban.",
+        "📊 Analisis & strategi":"Analisis masalah secara terstruktur. Pisahkan fakta, asumsi, risiko, opsi, dan rekomendasi praktis.",
+        "🎬 Konten kreator":"Buat ide konten menarik dengan hook, isi, caption, CTA, dan variasi format. Hindari klaim hasil yang tidak bisa dijamin.",
+        "🧩 Brainstorm ide":"Hasilkan banyak ide berbeda, kelompokkan berdasarkan dampak dan kesulitan, lalu pilih yang paling realistis.",
+        "📝 Ringkas teks/dokumen":"Ringkas teks menjadi inti, poin penting, tindakan berikutnya, dan pertanyaan yang belum terjawab.",
+        "🌐 Penerjemah":"Terjemahkan dengan alami dan pertahankan makna, konteks, serta format aslinya."
     }
-    if st.button("âœ¨ Buat hasil dengan AI", type="primary"):
+    if st.button("✨ Buat hasil dengan AI", type="primary"):
         if not task.strip():
             st.warning("Isi instruksi atau teks terlebih dahulu.")
         else:
             add_message(current_id, "user", f"[AI STUDIO: {tool}]\n{task}")
-            with st.spinner("Menyusun hasilâ€¦"):
+            with st.spinner("Menyusun hasil…"):
                 try:
                     answer = call_ai(provider, api_key, model, get_messages(current_id),
                                      prompts[tool] + "\nIkuti permintaan pengguna secara langsung dan jelas.",
@@ -383,8 +391,8 @@ elif page == "ðŸ§° AI Studio":
                 except Exception as e:
                     st.error(f"Gagal: {e}")
 
-elif page == "ðŸ—‚ï¸ Riwayat Chat":
-    st.subheader("ðŸ—‚ï¸ Riwayat percakapan")
+elif page == "🗂️ Riwayat Chat":
+    st.subheader("🗂️ Riwayat percakapan")
     st.caption("Riwayat disimpan di database lokal server/perangkat tempat Streamlit berjalan.")
     chats = get_chats()
     if not chats:
@@ -405,8 +413,8 @@ elif page == "ðŸ—‚ï¸ Riwayat Chat":
                     st.session_state.chat_id = create_chat()
                 st.rerun()
 
-elif page == "ðŸ” API & Pengaturan":
-    st.subheader("ðŸ” API & Pengaturan")
+elif page == "🔐 API & Pengaturan":
+    st.subheader("🔐 API & Pengaturan")
     st.markdown("""
 **Cara kerja penyimpanan**
 - API key dienkripsi sebelum disimpan di SQLite pada folder `.xtrade_king`.
@@ -417,10 +425,10 @@ elif page == "ðŸ” API & Pengaturan":
     st.warning("Jika file kunci lokal hilang atau berubah, API key yang sudah dienkripsi tidak dapat dibuka. Backup database dan file kunci secara aman.")
     st.markdown("**Provider yang tersedia**")
     for p, info in PROVIDERS.items():
-        st.markdown(f"- **{p}** â€” model contoh: {', '.join(info['models'])}")
+        st.markdown(f"- **{p}** — model contoh: {', '.join(info['models'])}")
     st.markdown("**Catatan penting:** Streamlit Community Cloud dapat menghapus data lokal saat redeploy atau perubahan lingkungan. Untuk penggunaan produksi, gunakan database persisten dan secret manager.")
 
-elif page == "â„¹ï¸ Tentang":
+elif page == "ℹ️ Tentang":
     st.subheader("Tentang XTRADE KING")
     st.markdown("""
 XTRADE KING adalah antarmuka AI multi-provider yang dapat dikembangkan lebih lanjut.
@@ -439,4 +447,4 @@ XTRADE KING adalah antarmuka AI multi-provider yang dapat dikembangkan lebih lan
     """)
 
 st.divider()
-st.caption("XTRADE KING â€¢ AI STUDIO â€¢ Simpan perubahan dan backup data dengan aman.")
+st.caption("XTRADE KING • AI STUDIO • Simpan perubahan dan backup data dengan aman.")
