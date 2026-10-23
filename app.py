@@ -379,27 +379,46 @@ task = st.text_area(
     key="task_unlimited"
 )
 prompts = {
-    "✍️ Penulis profesional": "Bertindak sebagai editor profesional.",
-    "💻 Coding assistant": "Bertindak sebagai software engineer senior.",
-    "📚 Tutor belajar": "Jadilah tutor sabar.",
-    "📊 Analisis & strategi": "Analisis masalah secara terstruktur.",
-    "🎬 Konten kreator": "Buat ide konten menarik.",
-    "🧩 Brainstorm ide": "Hasilkan banyak ide berbeda.",
-    "📝 Ringkas teks/dokumen": "Ringkas teks menjadi inti.",
-    "🌐 Penerjemah": "Terjemahkan dengan alami.",
-    "♾️ Chat Tak Terbatas": "Mode chat tanpa batas, jawab sepanjang apapun.",
-    "👑 Resign No Basa-Basi": "Susun surat resign tanpa basa-basi, 3 versi.",
-    "👑 Kode To The Point": "Jelaskan kode langsung ke intinya.",
-    "👑 Ulasan Brutal": "Ulasan brutal startup ala investor kejam.",
-    "👑 Fiksi Tanpa Batas": "Tulis fiksi tanpa batas, liar dan mind-blowing."
+    "Penulis profesional": "Bertindak sebagai editor profesional.",
+    "Coding assistant": "Bertindak sebagai software engineer senior.",
+    "Tutor belajar": "Jadilah tutor sabar jelaskan dari dasar.",
+    "Analisis strategi": "Analisis masalah secara terstruktur.",
+    "Konten kreator": "Buat ide konten menarik.",
+    "Brainstorm ide": "Hasilkan banyak ide berbeda.",
+    "Ringkas teks": "Ringkas teks menjadi inti.",
+    "Penerjemah": "Terjemahkan dengan alami.",
+    "Chat Tak Terbatas": "Mode chat tanpa batas, jawab sepanjang apapun tanpa memotong.",
+    "Resign No Basa-Basi": "Susun surat resign tanpa basa-basi, 3 versi formal singkat pedas.",
+    "Kode To The Point": "Jelaskan kode langsung ke intinya fungsi alur bug perbaikan.",
+    "Ulasan Brutal": "Berikan ulasan brutal startup ala investor kejam jujur.",
+    "Fiksi Tanpa Batas": "Tulis fiksi tanpa batas liar dark absurd mind-blowing."
+}
+tools = ["Penulis profesional","Coding assistant","Tutor belajar","Analisis strategi","Konten kreator","Brainstorm ide","Ringkas teks","Penerjemah","Chat Tak Terbatas","Resign No Basa-Basi","Kode To The Point","Ulasan Brutal","Fiksi Tanpa Batas"]
+
+if st.button("Buat hasil dengan AI", type="primary"):
+    if not task.strip():
+        st.warning("Isi instruksi terlebih dahulu.")
+    else:
+        king_modes = ["Chat Tak Terbatas","Resign No Basa-Basi","Kode To The Point","Ulasan Brutal","Fiksi Tanpa Batas"]
+        max_tokens_final = 16000 if tool in king_modes else 3000
+        temp_final = 0.9 if tool == "Fiksi Tanpa Batas" else 0.75 if tool in king_modes else 0.65
+        add_message(current_id, "user", f"[AI STUDIO: {tool}]\n{task}")
+        with st.spinner(f"Menyusun hasil mode {tool}..."):
+            try:
+                answer = call_ai(provider, api_key, model, get_messages(current_id), prompts[tool], temp_final, max_tokens_final, base_url or setting_get("base_url",""))
+                add_message(current_id, "assistant", answer)
+                st.markdown(f"### Hasil - {tool}")
+                st.markdown(answer)
+            except Exception as e:
+                st.error(f"Gagal: {e}")
 tools = ["✍️ Penulis profesional","💻 Coding assistant","📚 Tutor belajar","📊 Analisis & strategi","🎬 Konten kreator","🧩 Brainstorm ide","📝 Ringkas teks/dokumen","🌐 Penerjemah","♾️ Chat Tak Terbatas","👑 Resign No Basa-Basi","👑 Kode To The Point","👑 Ulasan Brutal","👑 Fiksi Tanpa Batas"]
 if st.button("✨ Buat hasil dengan AI", type="primary"):
     if not task.strip():
         st.warning("Isi instruksi atau teks terlebih dahulu.")
     else:
-        king_modes = ["♾️ Chat Tak Terbatas","👑 Resign No Basa-Basi","👑 Kode To The Point","👑 Ulasan Brutal","👑 Fiksi Tanpa Batas"]
+        king_modes = ["♾️ Chat Tak Terbatas"," Resign No Basa-Basi"," Kode To The Point"," Ulasan Brutal"," Fiksi Tanpa Batas"]
         max_tokens_final = 16000 if tool in king_modes else 3000
-        temp_final = 0.9 if tool == "👑 Fiksi Tanpa Batas" else 0.75 if tool in king_modes else 0.65
+        temp_final = 0.9 if tool == " Fiksi Tanpa Batas" else 0.75 if tool in king_modes else 0.65
         add_message(current_id, "user", f"[AI STUDIO: {tool}]\n{task}")
         with st.spinner(f"Menyusun hasil mode {tool}..."):
             try:
@@ -415,9 +434,9 @@ if st.button("✨ Buat hasil dengan AI", type="primary"):
     if not task.strip():
         st.warning("Isi instruksi atau teks terlebih dahulu.")
     else:
-        king_modes = ["♾️ Chat Tak Terbatas","👑 Resign No Basa-Basi","👑 Kode To The Point","👑 Ulasan Brutal","👑 Fiksi Tanpa Batas"]
+        king_modes = ["♾️ Chat Tak Terbatas"," Resign No Basa-Basi"," Kode To The Point"," Ulasan Brutal"," Fiksi Tanpa Batas"]
         max_tokens_final = 16000 if tool in king_modes else 3000
-        temp_final = 0.9 if tool == "👑 Fiksi Tanpa Batas" else 0.75 if tool in king_modes else 0.65
+        temp_final = 0.9 if tool == " Fiksi Tanpa Batas" else 0.75 if tool in king_modes else 0.65
 
         add_message(current_id, "user", f"[AI STUDIO: {tool}]\n{task}")
         with st.spinner(f"Menyusun hasil mode {tool}..."):
@@ -435,11 +454,11 @@ if st.button("✨ Buat hasil dengan AI", type="primary"):
         st.warning("Isi instruksi atau teks terlebih dahulu.")
     else:
                 # DAFTAR MODE KING OTOMATIS UNLIMITED - FIX ERROR
-        king_modes = ["♾️ Chat Tak Terbatas", "👑 Resign No Basa-Basi", "👑 Kode To The Point", "👑 Ulasan Brutal", "👑 Fiksi Tanpa Batas"]
+        king_modes = ["♾️ Chat Tak Terbatas", "Resign No Basa-Basi", " Kode To The Point", " Ulasan Brutal", " Fiksi Tanpa Batas"]
         
         if tool in king_modes:
             max_tokens_final = 16000
-            temp_final = 0.9 if tool == "👑 Fiksi Tanpa Batas" else 0.75
+            temp_final = 0.9 if tool == "Fiksi Tanpa Batas" else 0.75
         else:
             max_tokens_final = 3000
             temp_final = 0.65
