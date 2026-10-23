@@ -392,7 +392,6 @@ prompts = {
     "Kode To The Point": "Jelaskan kode langsung ke intinya fungsi alur bug perbaikan.",
     "Ulasan Brutal": "Berikan ulasan brutal startup ala investor kejam jujur.",
     "Fiksi Tanpa Batas": "Tulis fiksi tanpa batas liar dark absurd mind-blowing."
-}
 tools = ["Penulis profesional","Coding assistant","Tutor belajar","Analisis strategi","Konten kreator","Brainstorm ide","Ringkas teks","Penerjemah","Chat Tak Terbatas","Resign No Basa-Basi","Kode To The Point","Ulasan Brutal","Fiksi Tanpa Batas"]
 
 if st.button("Buat hasil dengan AI", type="primary"):
@@ -447,7 +446,6 @@ if st.button("✨ Buat hasil dengan AI", type="primary"):
                 st.markdown(answer)
             except Exception as e:
                 st.error(f"Gagal: {e}")
-}
 tools = ["✍️ Penulis profesional","💻 Coding assistant","📚 Tutor belajar","📊 Analisis & strategi","🎬 Konten kreator","🧩 Brainstorm ide","📝 Ringkas teks/dokumen","🌐 Penerjemah","♾️ Chat Tak Terbatas","👑 Resign No Basa-Basi","👑 Kode To The Point","👑 Ulasan Brutal","👑 Fiksi Tanpa Batas"]
 if st.button("✨ Buat hasil dengan AI", type="primary"):
     if not task.strip():
