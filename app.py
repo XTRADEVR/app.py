@@ -395,16 +395,27 @@ if st.button("✨ Buat hasil dengan AI", type="primary"):
     if not task.strip():
         st.warning("Isi instruksi atau teks terlebih dahulu.")
     else:
+        # DAFTAR MODE KING OTOMATIS UNLIMITED
+        king_modes = ["♾️ Chat Tak Terbatas", "👑 Resign No Basa-Basi", "👑 Kode To The Point", "👑 Ulasan Brutal", "👑 Fiksi Tanpa Batas"]
+        
+        if tool in king_modes or unlimited:
+            max_tokens_final = 16000
+            temp_final = 0.9 if tool == "👑 Fiksi Tanpa Batas" else 0.75
+        else:
+            max_tokens_final = 3000
+            temp_final = 0.65
+
         add_message(current_id, "user", f"[AI STUDIO: {tool}]\n{task}")
-        with st.spinner("Menyusun hasil..."):
+        with st.spinner(f"Menyusun hasil mode {tool}..."):
             try:
                 answer = call_ai(provider, api_key, model,
                 get_messages(current_id),
-                prompts[tool] + "\nIkuti permintaan pengguna secara langsung dan jelas.",
-                    0.65, max_tokens, base_url or setting_get("base_url",""))
+                prompts[tool] + "\nMode KING: Jawab tanpa batas, panjang, brutal jujur, tanpa basa-basi.",
+                    temp_final, max_tokens_final, base_url or setting_get("base_url",""))
                 add_message(current_id, "assistant", answer)
-                st.markdown("### Hasil")
+                st.markdown(f"### Hasil - {tool}")
                 st.markdown(answer)
+                st.caption(f"✅ Token: {max_tokens_final} | Mode: Tak Terbatas")
             except Exception as e:
                 st.error(f"Gagal: {e}")
 
