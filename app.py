@@ -400,10 +400,10 @@ if st.button("✨ Buat hasil dengan AI", type="primary"):
     if not task.strip():
         st.warning("Isi instruksi atau teks terlebih dahulu.")
     else:
-        # DAFTAR MODE KING OTOMATIS UNLIMITED
+                # DAFTAR MODE KING OTOMATIS UNLIMITED - FIX ERROR
         king_modes = ["♾️ Chat Tak Terbatas", "👑 Resign No Basa-Basi", "👑 Kode To The Point", "👑 Ulasan Brutal", "👑 Fiksi Tanpa Batas"]
         
-        if tool in king_modes or unlimited:
+        if tool in king_modes:
             max_tokens_final = 16000
             temp_final = 0.9 if tool == "👑 Fiksi Tanpa Batas" else 0.75
         else:
