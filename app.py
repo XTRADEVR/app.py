@@ -396,7 +396,6 @@ prompts = {
 }
 
 tools = ["✍️ Penulis profesional","💻 Coding assistant","📚 Tutor belajar","📊 Analisis & strategi","🎬 Konten kreator","🧩 Brainstorm ide","📝 Ringkas teks/dokumen","🌐 Penerjemah","♾️ Chat Tak Terbatas","👑 Resign No Basa-Basi","👑 Kode To The Point","👑 Ulasan Brutal","👑 Fiksi Tanpa Batas"]
-
 if st.button("✨ Buat hasil dengan AI", type="primary"):
     if not task.strip():
         st.warning("Isi instruksi atau teks terlebih dahulu.")
